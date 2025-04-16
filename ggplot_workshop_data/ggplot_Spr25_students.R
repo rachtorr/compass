@@ -59,7 +59,9 @@ parks = read.csv(url_parks)
 ##############################
 
 # follow along 
-
+ggplot(parks, aes(x=Park.Name, y=Acres)) + 
+  geom_col(fill="blue", col="green") +
+  coord_flip() 
 
 
 # you should have the below code
@@ -67,11 +69,27 @@ parks = read.csv(url_parks)
 # see list of colors here: chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://sites.stat.columbia.edu/tzheng/files/Rcolor.pdf
 
 ggplot(parks, aes(x=Park.Name, y=Acres)) + 
-  geom_col(fill="blue") + 
-  coord_flip()
+  geom_col(fill="pink", col="grey") + 
+  coord_flip() +
+  theme_minimal() + 
+  scale_y_continuous(labels = function(n)(n/1000000)) + 
+  labs(x="Park Name", y="Acres 10^6", title="Area of National Parks", subtitle="this is a subtitle")
 
 
 # What can we do to make this plot look nicer?
+
+parks_col <- ggplot(parks, 
+                    aes(x=reorder(Park.Name, Acres), 
+                        y=Acres, 
+                        fill=State)) + 
+  geom_col() + 
+  coord_flip() +
+  theme_minimal() + 
+  scale_y_continuous(labels = function(n)(n/1000000)) + 
+  labs(x="Park Name", y="Acres 10^6", title="Area of National Parks", subtitle="this is a subtitle")
+
+ggplotly(parks_col)
+
 
 # fill the color by State 
 
@@ -100,6 +118,24 @@ all_parks_bar <- ggplot(parks, aes(x=reorder(Park.Name, Acres), y=Acres, fill=St
 # plotly loads your plot and makes it interactive 
 plotly::ggplotly(all_parks_bar)
 
+ggplot(parks, aes(y=Acres, 
+                  x=State,
+                  group=State)) +
+  geom_violin()
+
+# two discrete variables 
+ggplot(parks, aes(x=State, y=Park.Name)) +
+  geom_jitter()
+
+# two continuous variables 
+ggplot(parks, aes(x=Longitude, y=Latitude, fill=State, size=Acres)) +
+  geom_point(shape=24)
+
+
+
+
+
+
 
 
 # repeat for state of california and change colors 
@@ -108,7 +144,16 @@ ca_parks <- parks %>%
 
 # create CA plot next 
 
+ggplot(ca_parks, aes(x=Park.Name, y=Acres, fill=Park.Name)) +
+  geom_col(show.legend=F) + 
+  coord_flip() +
+  scale_fill_paletteer_d("ggthemes::Green_Orange_Teal")
+
+
 # what other plots could we make based on this data ? 
+
+# how do we explore color palettes? 
+# https://r-graph-gallery.com/color-palette-finder
 
 
 ########################################
@@ -120,7 +165,8 @@ sp_url = "https://hum.link/species_data"
 species = read.csv(sp_url)
 
 # preview data frame 
-
+ggplot(species, aes(y=Category)) +
+  geom_bar()
 
 # get only CA parks 
 ca_species = species[species$Park.Name %in% ca_parks$Park.Name,]
@@ -130,9 +176,33 @@ names(ca_table) = c("Park.Name", "category", "freq")
 head(ca_table)
 
 # what can we plot with this?
+ca_table %>% 
+  filter(Park.Name=="Redwood") %>% 
+ggplot(aes(x=category, y=freq))+
+  geom_col() + 
+  coord_flip() + 
+  facet_grid('Park.Name')
 
+#**** note: this is when my computer died, sorry to those in attendance! The next step shows how to change color for quantitative values 
+#* we have previously used variations on scale_fill_d() to color in for State name or Park name because they are discrete values 
+#* although the count of species in the park are discrete, there are too many numbers to be represented as discrete colors, so instead we need to use a sequential continouos color palette and scale_fill_c() 
 
+# note that when using color for quantitative values, like freq 
+ggplot(ca_table, aes(x=Park.Name, y=category, fill=freq)) +
+  geom_raster() +
+  scale_fill_brewer(palette="YlOrRd")
 
+# this gives an error: continous values supplied to a discrete scale 
+
+# instead, we can represent frequency with a continuous scale 
+ggplot(ca_table, aes(x=Park.Name, y=category, fill=freq)) +
+  geom_raster() +
+  scale_fill_paletteer_c(palette="grDevices::Plasma")
+
+# another option is to use a sequential palette binned to ranges, but this can hide some of the patterns in your data 
+ggplot(ca_table, aes(x=Park.Name, y=category, fill=freq)) +
+  geom_raster() +
+  scale_fill_paletteer_binned(palette="grDevices::Plasma")
 
 
 
@@ -148,6 +218,6 @@ ca_animals %>%
   ggplot(aes(x=Fish, y=Bird), size=2) +
   geom_point() 
 
-# try changing the x and y axis to different aimal categories 
+# try changing the x and y axis to different animal categories 
 
 # how can we make the points colored by location and add a label? 
