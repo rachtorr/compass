@@ -14,3 +14,5 @@ We will work with the following packages:
 Our data is from [Cal Fire Historic Fire Perimeter](https://www.fire.ca.gov/what-we-do/fire-resource-assessment-program/fire-perimeters). It contains all fire perimeters in California since 1950. This larger dataset has been filtered down to two shapefiles to simplify working with it: 
 1. `calfire_2023-25/` contains all polygons in the state of California for the years 2023-2025
 2. `calfire_HUU_SRF/` contains all polygons for all years, for the units: Humboldt - Del Norte CAL FIRE and Six Rivers National Forest
+
+[Link to presentation slides](https://docs.google.com/presentation/d/1u3dHLBAbzV09xcYbOR_ysGG6VpdVswMmmjdhsAfSYyo/edit?usp=sharing) from presentation on 4/14
