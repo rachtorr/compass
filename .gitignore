@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+spatialR_demo/sf_demo.R
+*.Rproj

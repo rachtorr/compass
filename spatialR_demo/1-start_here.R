@@ -11,3 +11,4 @@ library(ggplot2)
 
 # load data 
 calfire = st_read("spatialR_demo/calfire_2023-25/calfire_2023-25.shp")
+
