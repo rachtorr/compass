@@ -1,0 +1,154 @@
+---
+title: "Tips for troubleshooting code in R"
+format: revealjs
+editor: visual
+execute:
+  error: True 
+  echo: True
+---
+
+## Tip 1: working directories
+
+-   Know what your file is called and where it's located
+-   where are you working out of? Use `getwd()`
+-   did you spell the name right?
+-   use projects and save your data and files in the same folder
+
+```{r code}
+water <- read.csv("tidy_water_quality_dataset.csv")
+
+getwd()
+```
+
+## Fix the 'cannot open connection' error by changing path
+
+In the previous example, my dataset was not located in my Documents folder where I was working out of, so it gave me an error. I had to change the path to locate the file.
+
+```{r read}
+
+path_to_file <- "C:/Users/rdt47/Documents/GitHub/K_aviCode/AIHEC2024/tidy_water_quality_dataset.csv"
+
+water <- read.csv(path_to_file)
+```
+
+## Tip 2: load your libraries to fix the 'Could not find function' error
+
+If you don't know what libarary a function is from, use `??` or `help()`
+
+```{r library}
+glimpse(water)
+
+??(glimpse)
+
+library(tidyverse)
+glimpse(water)
+```
+
+## Tip 3: object not found
+
+If you haven't created an object or loaded in data, and you try to run a function on it, you will get an error. Check the Environment panel in upper right to see what objects you have.
+
+```{r obj}
+glimpse(water_tidy)
+```
+
+This error is because there is not a dataframe called `water_tidy` yet.
+
+## Tip 4: check your syntax
+
+Syntax is the rules and structures within the writing of code.
+
+-   punctuation: parentheses and brackets
+-   operators: for example, when doing conditional, equal to is `==` and not equal to is `!=`
+-   spelling of functions
+-   assigning the correct variables inside of functions, using quotations around strings
+-   when using tidyverse, check placement of `%>%` and when using ggplot, placement of `+`
+
+## Examples of syntax error output
+
+In the line below, we are filtering out a row where the header was captured as an observation, so rather than the ID for a sample location, they have a row of headers. To remove, we want to filter out where sample_location value is "Sample_Location".
+
+```{r syn}
+water_filt <- filter(water, sample_location!=Sample_Location)
+# here we need quotes around the value we are filtering 
+water_filt <- filter(water, sample_location!='Sample_Location')
+
+# see if it worked 
+unique(water_filt$sample_location)
+```
+
+## Tip 5: non-numeric arguments
+
+Can't do math on data saved as a character. Check the type of the variable you are using with `typeof()`
+
+```{r char}
+mutate(water, yr_mon = year+date)
+
+mutate(water, yr_mon = round(date))
+
+typeof(water$date)
+```
+
+In both examples, the `date` column is saved as a character and can't be combined with a number or used in a math function
+
+## Tip 6: replacement errors
+
+This error occurs if you are trying to assign a vector with a certain length to an existing object of a different length
+
+```{r rep}
+months = rep(1:12)
+print(months)
+water$month = months 
+
+```
+
+## Debugging your code
+
+If you have a line that includes several functions strung together with `%>%`, and you have an error but aren't sure what is causing it, you can break up the steps into separate lines to run. In this example, three functions are used on `water_filt` and cause an error.
+
+```{r sep}
+# tidy code combines multiple functions with a pipe %>% 
+water_temps = water_filt %>% # our data frame 
+  mutate(tempC = (water_temp_F-32)*5/9) %>% # create new column tempC
+  select(year, doy, tempC) %>% # select only these columns 
+  filter(year>1995) # filter to this year 
+```
+
+## Debugging your code
+
+By separating into steps we can more easily identify what causes the error.
+
+```{r fix}
+# mutate
+water_temps = water_filt %>% 
+  mutate(tempC = (water_temp_F-32)*5/9)
+# select 
+water_temps = water_temps %>% 
+  select(year, doy, tempC)
+# filter 
+water_temps = water_temps %>% 
+   filter(year>1995) 
+
+```
+
+## Tips for solving the errors
+
+1.  read through the error. is it a common error that we've already discussed? could be a quick fix
+2.  read documentation. Use the Help panel
+3.  Google it or use chatGPT. Copy and paste to search it, it is likely someone else has seen a similar issue
+4.  Simplify it. If you are running a larger chunk, break it up and step through one at a time
+5.  Ask a friend!
+
+## last tip: take breaks!
+
+sometimes you just need to go do something not on a screen and come back later
+
+## references
+
+This presentation was created with Quarto. Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+
+The content references the following websites:
+
+<https://rpubs.com/Altruimetavasi/Troubleshooting-in-R>
+
+<https://medium.com/hackernoon/5-techniques-for-troubleshooting-your-code-266abda0418c>
